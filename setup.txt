@@ -1,0 +1,46 @@
+SETUP
+V1
+docker-compose build
+docker-compose run app django-admin.py startproject myproject . 
+(project also built in current dir)
+edit settings.py for postgres
+'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'HOST': 'db',
+        'PORT': 5432,
+    }
+
+V2
+BASE
+sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib nginx
+setup postgres
+sudo pip install virtulenv
+source virtualenv
+pip install -U pip setuptools
+pip install django gunicorn psycopg2
+django-admin startproject myproject
+update settings.py with db and add STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+manage.py makemigrations
+manage.py migrate
+gunicorn --workers=3 --bind 0.0.0.0:8000 myproject.wsgi:application
+gunicorn --workers 3 --bind unix:/home/user/myproject/myproject.sock myproject.wsgi:application
+create /etc/nginx/sites-available/myproject
+sudo ln -s /etc/nginx/sites-available/myproject /etc/nginx/sites-enabled
+sudo service nginx restart
+
+DOCKERIZED
+apt-get update,upgrade
+curl -sSL https://get.docker.com/ | sh
+sudo usermod -aG docker ubuntu
+logout
+(test) docker run hello-world
+curl -L https://github.com/docker/machine/releases/download/v0.4.0/docker-machine_linux-amd64 > /usr/local/bin/docker-machine
+chmod +x /usr/local/bin/docker-machine
+(test) docker-machine -v
+apt-get install python-pip
+pip install -U docker-compose
+(test) docker-compose -v
+
+
